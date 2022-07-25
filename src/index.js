@@ -1,34 +1,41 @@
+//! This contract implements simple counter backed by storage on blockchain.
+//!
+//! The contract provides methods to [increment] / [decrement] counter and
+//! get it's current value [get_num] or [reset].
 import { NearContract, NearBindgen, near, call, view } from 'near-sdk-js'
-import { isUndefined } from 'lodash-es'
 
 @NearBindgen
 class Counter extends NearContract {
-    constructor({ initial = 0 }) {
+    constructor() {
         super()
-        this.count = initial
+        this.val = 0
     }
 
     @call
-    increase({ n = 1 }) {
-        this.count += n
-        near.log(`Counter increased to ${this.count}`)
+    /// Public method: Increment the counter.
+    increment() {
+        this.val += 1;
+        near.log(`Increased number to ${this.val}`)
     }
 
     @call
-    decrease({ n }) {
-        // you can use default argument `n=1` too
-        // this is to illustrate a npm dependency: lodash can be used
-        if (isUndefined(n)) {
-            this.count -= 1
-        } else {
-            this.count -= n
-        }
-        near.log(`Counter decreased to ${this.count}`)
+    /// Public method: Decrement the counter.
+    decrement() {
+        this.val -= 1;
+        near.log(`Decreased number to ${this.val}`)
+    }
+
+    @call
+    /// Public method - Reset to zero.
+    reset() {
+        this.val = 0;
+        near.log(`Reset counter to zero`)
     }
 
     @view
-    getCount() {
-        return this.count
+    /// Public method: Returns the counter value.
+    get_num() {
+        return this.val
     }
 }
 
