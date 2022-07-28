@@ -12,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
   let contract = sandbox.dev_deploy(&wasm).await?;
 
   // create accounts
-  let owner = sandbox.root_account();
+  let owner = sandbox.root_account().unwrap();
   let user = owner
     .create_subaccount(&sandbox, "user")
     .initial_balance(parse_near!("30 N"))
