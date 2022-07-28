@@ -12,28 +12,28 @@ class Counter extends NearContract {
     }
 
     @call
-    // Public method: Increment the counter.
+    // Smart contract function: Increment the counter.
     increment() {
         this.val += 1;
         near.log(`Increased number to ${this.val}`)
     }
 
     @call
-    // Public method: Decrement the counter.
+    // Smart contract function: Decrement the counter.
     decrement() {
         this.val -= 1;
         near.log(`Decreased number to ${this.val}`)
     }
 
     @call
-    // Public method - Reset to zero.
+    // Smart contract function: Reset to zero.
     reset() {
         this.val = 0;
         near.log(`Reset counter to zero`)
     }
 
     @view
-    // Public method: Returns the counter value.
+    // Smart contract function: Returns the counter value.
     get_num() {
         return this.val
     }
