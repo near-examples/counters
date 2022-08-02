@@ -1,7 +1,7 @@
-import { Worker } from 'near-workspaces';
-import test from 'ava';
+import { Worker } from "near-workspaces";
+import test from "ava";
 
-test.beforeEach(async t => {
+test.beforeEach(async (t) => {
     // Init the worker and start a Sandbox server
     const worker = await Worker.init();
 
@@ -9,17 +9,11 @@ test.beforeEach(async t => {
     const root = worker.rootAccount;
 
     // Deploy the counter contract.
-    const counter = await root.createAndDeploy(
-        root.getSubAccount('counter').accountId,
-        './build/contract.wasm'
-    );
-
-    // Init the contract
-    await counter.call(counter, 'init', {});
+    const counter = await root.devDeploy("./build/contract-js.wasm", { method: "init", args: {} });
 
     // Test users
-    const ali = await root.createSubAccount('ali');
-    const bob = await root.createSubAccount('bob');
+    const ali = await root.createSubAccount("ali");
+    const bob = await root.createSubAccount("bob");
 
     // Save state for test runs
     t.context.worker = worker;
@@ -27,38 +21,44 @@ test.beforeEach(async t => {
 });
 
 // If the environment is reused, use test.after to replace test.afterEach
-test.afterEach(async t => {
-    await t.context.worker.tearDown().catch(error => {
-        console.log('Failed to tear down the worker:', error);
+test.afterEach(async (t) => {
+    await t.context.worker.tearDown().catch((error) => {
+        console.log("Failed to tear down the worker:", error);
     });
 });
 
-test('Initial count is 0', async t => {
+test("Initial count is 0", async (t) => {
     const { counter } = t.context.accounts;
-    const result = await counter.view('getCount', {});
+    const result = await counter.view("get_num", {});
     t.is(result, 0);
 });
 
-test('Increase works', async t => {
+test("Increase works", async (t) => {
     const { counter, ali, bob } = t.context.accounts;
-    await ali.call(counter, 'increase', {});
+    await ali.call(counter, "increment", {});
 
-    let result = await counter.view('getCount', {});
+    let result = await counter.view("get_num", {});
     t.is(result, 1);
 
-    await bob.call(counter, 'increase', { n: 4 });
-    result = await counter.view('getCount', {});
+    // loop four times
+    for (let i = 0; i < 4; i++) {
+        await bob.call(counter, "increment", {});
+    }
+    result = await counter.view("get_num", {});
     t.is(result, 5);
 });
 
-test('Decrease works', async t => {
+test("Decrease works", async (t) => {
     const { counter, ali, bob } = t.context.accounts;
-    await ali.call(counter, 'decrease', {});
+    await ali.call(counter, "decrement", {});
 
-    let result = await counter.view('getCount', {});
+    let result = await counter.view("get_num", {});
     t.is(result, -1);
 
-    await bob.call(counter, 'decrease', { n: 4 });
-    result = await counter.view('getCount', {});
+    // loop four times
+    for (let i = 0; i < 4; i++) {
+        await bob.call(counter, "decrement", {});
+    }
+    result = await counter.view("get_num", {});
     t.is(result, -5);
 });

@@ -4,7 +4,7 @@ jobs:
   workflows:
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-latest] # mac-os in development
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
@@ -14,6 +14,6 @@ jobs:
       - name: Install modules
         run: yarn
       - name: Build contract
-        run: yarn build
+        run: yarn build-js
       - name: Run tests
         run: yarn test
