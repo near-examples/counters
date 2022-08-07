@@ -6,7 +6,7 @@
   "scripts": {
     "build": "near-sdk-js build src/index.ts build/contract.wasm",
     "build-js": "near-sdk-js build src/index.js build/contract-js.wasm",
-    "test": "ava --verbose"
+    "test": "yarn build && yarn build-js && ava --verbose"
   },
   "author": "Near Inc <hello@nearprotocol.com>",
   "license": "Apache-2.0",

@@ -11,6 +11,10 @@ class Counter extends NearContract {
         this.val = 0
     }
 
+    default() {
+        return new Counter()
+    }
+
     @call
     // Smart contract function: Increment the counter.
     increment() {
