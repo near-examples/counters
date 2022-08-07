@@ -29,7 +29,7 @@ test.afterEach(async (t) => {
 
 test("Initial count is 0", async (t) => {
     const { counter } = t.context.accounts;
-    const result = await counter.view("get_num", {});
+    const result = await counter.view("getNum", {});
     t.is(result, 0);
 });
 
@@ -37,14 +37,14 @@ test("Increase works", async (t) => {
     const { counter, ali, bob } = t.context.accounts;
     await ali.call(counter, "increment", {});
 
-    let result = await counter.view("get_num", {});
+    let result = await counter.view("getNum", {});
     t.is(result, 1);
 
     // loop four times
     for (let i = 0; i < 4; i++) {
         await bob.call(counter, "increment", {});
     }
-    result = await counter.view("get_num", {});
+    result = await counter.view("getNum", {});
     t.is(result, 5);
 });
 
@@ -52,13 +52,13 @@ test("Decrease works", async (t) => {
     const { counter, ali, bob } = t.context.accounts;
     await ali.call(counter, "decrement", {});
 
-    let result = await counter.view("get_num", {});
+    let result = await counter.view("getNum", {});
     t.is(result, -1);
 
     // loop four times
     for (let i = 0; i < 4; i++) {
         await bob.call(counter, "decrement", {});
     }
-    result = await counter.view("get_num", {});
+    result = await counter.view("getNum", {});
     t.is(result, -5);
 });

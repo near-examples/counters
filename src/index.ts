@@ -1,7 +1,7 @@
 //! This contract implements simple counter backed by storage on blockchain.
 //!
 //! The contract provides methods to [increment] / [decrement] counter and
-//! get it's current value [get_num] or [reset].
+//! get it's current value [getNum] or [reset].
 import { NearContract, NearBindgen, near, call, view } from 'near-sdk-js'
 
 @NearBindgen
@@ -10,6 +10,10 @@ class Counter extends NearContract {
     constructor() {
         super()
         this.val = 0
+    }
+
+    default() {
+        return new Counter()
     }
 
     @call
@@ -35,7 +39,7 @@ class Counter extends NearContract {
 
     @view
     /// Public method: Returns the counter value.
-    get_num(): number {
+    getNum(): number {
         return this.val
     }
 }
