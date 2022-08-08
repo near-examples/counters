@@ -106,7 +106,7 @@ Once a smart contract has been deployed it must be initialized.
 Initialize This contract by running the following
 
 ```bash
-near call <dev-account> init --accountId 'blockhead.testnet'
+near call <dev-account> init --accountId <your-account.testnet>
 ```
 
 ## Calling methods from terminal
