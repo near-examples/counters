@@ -2,7 +2,7 @@
 
 ## Overview
 
-Our counter example is a decentralized app that stores a number and exposes methods to `increment`, `decrement`, and `reset` it. It also features a friendly frontend with a smiling handheld console.
+Our counter example is a decentralized app that stores a number and exposes methods to `increment`, `decrement`, and `reset` it.
 
 ## Installation & Setup
 
