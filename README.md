@@ -15,7 +15,7 @@ git clone https://github.com/near-examples/js-counter.git
 enter the folder with:
 
 ```bash
-cd js-counter/
+cd js-counter
 ```
 
 To download dependencies run:
