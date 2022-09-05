@@ -1,151 +1,53 @@
-# JS-Counter
+# Count on NEAR 🧮 
+[![](https://img.shields.io/badge/⋈%20Examples-Basics-green)](https://docs.near.org/tutorials/welcome)
+[![](https://img.shields.io/badge/Gitpod-Ready-orange)](https://gitpod.io/#https://github.com/near-examples/counter-js})
+[![](https://img.shields.io/badge/Contract-js-yellow)](https://docs.near.org/develop/contracts/anatomy)
+[![](https://img.shields.io/badge/Frontend-JS-yellow)](https://docs.near.org/develop/integrate/frontend)
+[![](https://img.shields.io/badge/Testing-passing-green)](https://docs.near.org/develop/integrate/frontend)
 
-## Overview
 
-Our counter example is a decentralized app that stores a number and exposes methods to `increment`, `decrement`, and `reset` it.
+Count on NEAR is a decentralized app that stores a simple counter, enabling to increment, decrement and reset it.
 
-## Installation & Setup
+![](https://docs.near.org/assets/images/count-on-near-banner-2df2978ef988be400aafd5e0f99878be.png)
 
-To clone run:
+
+# What This Example Shows
+
+1. How to store, modify and retrieve information in the NEAR network.
+2. How to integrate a smart contract in a web frontend.
+
+<br />
+
+# Quickstart
+
+Clone this repository locally or [**open it in gitpod**](https://gitpod.io/#/github.com/near-examples/counter-js). Then follow these steps:
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Test the Contract
+Deploy your contract in a sandbox and simulate interactions from users.
 
 ```bash
-git clone https://github.com/near-examples/js-counter.git
+npm test
 ```
 
-enter the folder with:
-
+### 3. Deploy the Contract
+Build the contract and deploy it in a testnet account
 ```bash
-cd js-counter
+npm run deploy
 ```
 
-To download dependencies run:
-
+### 4. Start the Frontend
+Start the web application to interact with your smart contract 
 ```bash
-yarn
+npm start
 ```
 
-or
+---
 
-```bash
-npm i
-```
-
-## Building Your Smart Contract
-
-The Smart Contract consists of four methods available for the user to call.
-
-```javascript
-    @call
-    /// Public method: Increment the counter.
-    increment() {
-        this.val += 1;
-        near.log(`Increased number to ${this.val}`)
-    }
-
-    @call
-    /// Public method: Decrement the counter.
-    decrement() {
-        this.val -= 1;
-        near.log(`Decreased number to ${this.val}`)
-    }
-
-    @call
-    /// Public method - Reset to zero.
-    reset() {
-        this.val = 0;
-        near.log(`Reset counter to zero`)
-    }
-
-    @view
-    /// Public method: Returns the counter value.
-    getNum(): number {
-        return this.val
-    }
-
-```
-
-A `call` method stores or modifies information that exists in state on the NEAR blockchain. Call methods do incur a gas fee. `Call` methods return no values
-
-A `view` method retrieves information stored on the blockchain. No fee is charged for a view method. View methods always return a value.
-
-`NearBindgen` is a decorator that exposes the state and methods to the user.
-
-To build your smart contract run
-
-```bash
-yarn build-js
-
-```
-
-or
-
-```bash
-npm run build-js
-```
-
-This build script will build your smart contract and compile it down to a `.wasm` file, in this case named `contract-js.wasm`.
-
-Once you have built out your smart contract you can deploy it to a NEAR account using:
-
-```bash
-near dev-deploy build/contract.wasm
-```
-
-`dev-deploy` will create a new dev account on NEAR's testnet, and deploy the selected `.wasm` file onto it.
-
-The output should display the dev account name as follows.
-
-example:
-
-```
-dev-1659920584637-66821958258766
-```
-
-Once a smart contract has been deployed it must be initialized.
-
-Initialize This contract by running the following
-
-```bash
-near call <dev-account> init --accountId <your-account.testnet>
-```
-
-## Calling methods from terminal
-
-From the init method the starting number was set to `0`.
-
-This method will increment the value by 1
-
-```bash
- near call <dev-account> increment '{}' --accountId <your-account.testnet>
-```
-
-This will return and display the value of the current number
-
-```bash
-near view <dev account> get_num '{}' --accountId <your-account.testnet>
-
-```
-
-Run the following to decrease the value of the current number.
-
-```bash
- near call dev-1659920584637-66821958258766 decrement '{}' --accountId <your-account.testnet>
-```
-
-## Run Tests
-
-This example repo comes with integration tests written in rust and assembly type script.
-
-To run tests run the following in your terminal:
-
-```bash
-yarn test
-```
-
-or
-
-```bash
-npm run test
-```
-
-Integration tests are generally written in javascript. They automatically deploy your contract and execute methods on it. In this way, integration tests simulate interactions from users in a realistic scenario. You will find the integration tests for hello-near in integration-tests/.
+# Learn More
+1. Learn more about the contract through its [README](./contract/README.md).
+2. Check [**our documentation**](https://docs.near.org/develop/welcome).
