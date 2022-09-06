@@ -1,6 +1,23 @@
-import "regenerator-runtime/runtime";
-import { initContract, login, logout, getCounter, counterIncrement,
-         counterDecrement, counterReset } from './near/utils'
+import 'regenerator-runtime/runtime'
+import { Contract } from './near-interface';
+import { Wallet } from './near-wallet'
+
+// create the Wallet and the Contract
+window.wallet = new Wallet({contractId: process.env.CONTRACT_NAME});
+window.contract = new Contract({wallet: window.wallet})
+
+//  Setup on page load
+window.onload = async () => {
+  const isSignedIn = await wallet.startUp();
+
+  if (isSignedIn){
+    signedInFlow()
+  }else{
+    signedOutFlow()
+  }
+
+  updateUI()
+}
 
 function resetUI(){
   document.querySelector('#show').classList.replace('number','loader');
@@ -18,41 +35,27 @@ document.querySelector('#d').addEventListener('click', () => {
   document.querySelector('.dot').classList.toggle('on');
 });
 
-// Buttons - Interact with the Smart Contract
+// Buttons - Interact with the Smart contract
 document.querySelector('#plus').addEventListener('click', async () => {
   resetUI();
-  await counterIncrement();
+  await contract.counterIncrement();
   await updateUI();
 });
 
 document.querySelector('#minus').addEventListener('click', async  () => {
   resetUI();
-  await counterDecrement();
+  await contract.counterDecrement();
   await updateUI();
 });
 document.querySelector('#a').addEventListener('click', async  () => {
   resetUI();
-  await counterReset();
+  await contract.counterReset();
   await updateUI();
 });
 
 // Log in and log out users using NEAR Wallet
-document.querySelector('.sign-in .btn').onclick = login;
-document.querySelector('.sign-out .btn').onclick = logout;
-
-// `nearInitPromise` gets called on page load
-window.nearInitPromise = initContract()
-                    .then(flow)
-                    .catch(console.error)
-
-function flow(){
-  if (window.walletConnection.isSignedIn()){
-    signedInFlow()
-  }else{
-    signedOutFlow()
-  }
-  updateUI()
-}
+document.querySelector('.sign-in .btn').onclick = () => { wallet.signIn() }
+document.querySelector('.sign-out .btn').onclick = () => { wallet.signOut() }
 
 // Display the signed-out-flow container
 function signedOutFlow() {
@@ -67,7 +70,7 @@ async function signedInFlow() {
 }
 
 async function updateUI(){
-  let count = await getCounter();
+  let count = await contract.getCounter();
   
   document.querySelector('#show').classList.replace('loader','number');
   document.querySelector('#show').innerText = count === undefined ? 'calculating...' : count;

@@ -1,105 +1,53 @@
-Counter example in Rust
-=================================
-
-[![Open in Gitpod!](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/near-examples/rust-counter)
-
-<!-- MAGIC COMMENT: DO NOT DELETE! Everything above this line is hidden on NEAR Examples page -->
-
-## Description
-
-This contract implements simple counter backed by storage on blockchain.
-Contract in `contract/src/lib.rs` provides methods to increment / decrement counter and get it's current value or reset.
-
-Plus and minus buttons increase and decrease value correspondingly. When button L is toggled, a little light turns on, just for fun. RS button is for reset. LE and RE buttons to let the robot wink at you.
-
-## To Run
-Open in the Gitpod link above or clone the repository.
-
-```
-git clone https://github.com/near-examples/rust-counter
-```
+# Count on NEAR 🧮 
+[![](https://img.shields.io/badge/⋈%20Examples-Basics-green)](https://docs.near.org/tutorials/welcome)
+[![](https://img.shields.io/badge/Gitpod-Ready-orange)](https://gitpod.io/#/https://github.com/near-examples/counter-rust)
+[![](https://img.shields.io/badge/Contract-rust-red)](https://docs.near.org/develop/contracts/anatomy)
+[![](https://img.shields.io/badge/Frontend-JS-yellow)](https://docs.near.org/develop/integrate/frontend)
+[![](https://img.shields.io/badge/Testing-passing-green)](https://docs.near.org/develop/integrate/frontend)
 
 
-## Setup [Or skip to Login if in Gitpod](#login)
-Install dependencies:
+Count on NEAR is a decentralized app that stores a simple counter, enabling to increment, decrement and reset it.
 
-```
-yarn
-```
+![](https://docs.near.org/assets/images/count-on-near-banner-2df2978ef988be400aafd5e0f99878be.png)
 
-If you don't have `Rust` installed, complete the following 3 steps:
 
-1) Install Rustup by running:
+# What This Example Shows
 
-```
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+1. How to store, modify and retrieve information in the NEAR network.
+2. How to integrate a smart contract in a web frontend.
+
+<br />
+
+# Quickstart
+
+Clone this repository locally or [**open it in gitpod**](https://gitpod.io/#/github.com/near-examples/counter-rust). Then follow these steps:
+
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
-([Taken from official installation guide](https://www.rust-lang.org/tools/install))
+### 2. Test the Contract
+Deploy your contract in a sandbox and simulate interactions from users.
 
-2) Configure your current shell by running:
-
-```
-source $HOME/.cargo/env
-```
-
-3) Add wasm target to your toolchain by running:
-
-```
-rustup target add wasm32-unknown-unknown
+```bash
+npm test
 ```
 
-Next, make sure you have `near-cli` by running:
-
-```
-near --version
-```
-
-If you need to install `near-cli`:
-
-```
-npm install near-cli -g
+### 3. Deploy the Contract
+Build the contract and deploy it in a testnet account
+```bash
+npm run deploy
 ```
 
-## Login
-If you do not have a NEAR account, please create one with [NEAR Wallet](https://wallet.testnet.near.org).
-
-In the project root, login with `near-cli` by following the instructions after this command:
-
-```
-near login
+### 4. Start the Frontend
+Start the web application to interact with your smart contract 
+```bash
+npm start
 ```
 
-Modify the top of `src/config.js`, changing the `CONTRACT_NAME` to be the NEAR account that was just used to log in.
+---
 
-```javascript
-…
-const CONTRACT_NAME = 'YOUR_ACCOUNT_NAME_HERE'; /* TODO: fill this in! */
-…
-```
-
-Start the example!
-
-```
-yarn start
-```
-
-## To Test
-
-```
-yarn test
-```
-
-## To Explore
-
-- `contract/src/lib.rs` for the contract code
-- `src/index.html` for the front-end HTML
-- `src/main.js` for the JavaScript front-end code and how to integrate contracts
-- `src/test.js` for the JS tests for the contract
-
-## To Build the Documentation
-
-```
-cd contract
-cargo doc --no-deps --open
-```
+# Learn More
+1. Learn more about the contract through its [README](./contract/README.md).
+2. Check [**our documentation**](https://docs.near.org/develop/welcome).

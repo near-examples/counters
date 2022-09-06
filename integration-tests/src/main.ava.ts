@@ -11,26 +11,20 @@ test.beforeEach(async (t) => {
   const worker = await Worker.init();
   const root = worker.rootAccount;
 
-  // deploy contract
-  const contract = await root.devDeploy(
-    "./out/main.wasm",
-    { initialBalance: NEAR.parse("30 N").toJSON() }
-  );
-
   // some test accounts
   const alice = await root.createSubAccount("alice", {
     initialBalance: NEAR.parse("30 N").toJSON(),
   });
-  const bob = await root.createSubAccount("bob", {
-    initialBalance: NEAR.parse("30 N").toJSON(),
-  });
-  const charlie = await root.createSubAccount("charlie", {
+  const contract = await root.createSubAccount("contract", {
     initialBalance: NEAR.parse("30 N").toJSON(),
   });
 
+  // Get wasm file path from package.json test script in folder above
+  await contract.deploy(process.argv[2]);
+
   // Save state for test runs, it is unique for each test
   t.context.worker = worker;
-  t.context.accounts = { root, contract, alice, bob, charlie };
+  t.context.accounts = { contract, alice };
 });
 
 test.afterEach(async (t) => {
@@ -41,27 +35,27 @@ test.afterEach(async (t) => {
 });
 
 test("can be incremented", async (t) => {
-  const { root, contract } = t.context.accounts;
+  const { alice, contract } = t.context.accounts;
   const startCounter: number = await contract.view("get_num", {});
-  await root.call(contract, "increment", {});
+  await alice.call(contract, "increment", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter + 1);
 });
 
 test("can be decremented", async (t) => {
-  const { root, contract } = t.context.accounts;
-  await root.call(contract, "increment", {});
+  const { alice, contract } = t.context.accounts;
+  await alice.call(contract, "increment", {});
   const startCounter: number = await contract.view("get_num", {});
-  await root.call(contract, "decrement", {});
+  await alice.call(contract, "decrement", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter - 1);
 });
 
 test("can be reset", async (t) => {
-  const { root, contract } = t.context.accounts;
-  await root.call(contract, "increment", {});
-  await root.call(contract, "increment", {});
-  await root.call(contract, "reset", {});
+  const { alice, contract } = t.context.accounts;
+  await alice.call(contract, "increment", {});
+  await alice.call(contract, "increment", {});
+  await alice.call(contract, "reset", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, 0);
 });
