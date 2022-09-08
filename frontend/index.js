@@ -1,10 +1,13 @@
 import 'regenerator-runtime/runtime'
-import { Contract } from './near-interface';
+import { Counter } from './near-interface';
 import { Wallet } from './near-wallet'
 
-// create the Wallet and the Contract
-const wallet = new Wallet({contractId: process.env.CONTRACT_NAME, createAccessKey: true});
-const contract = new Contract({wallet: wallet})
+// When creating the wallet you can choose to create an access key, so the user
+// can skip signing non-payable methods when interacting with the contract
+const wallet = new Wallet({ createAccessKeyFor: process.env.CONTRACT_NAME })
+
+// Abstract the logic of interacting with the contract to simplify your project
+const counter = new Counter({ contractId: process.env.CONTRACT_NAME, walletToUse: wallet });
 
 // Setup on page load
 window.onload = async () => {
@@ -18,40 +21,6 @@ window.onload = async () => {
 
   updateUI()
 }
-
-function resetUI(){
-  document.querySelector('#show').classList.replace('number','loader');
-  document.querySelector('#show').innerText = '';
-}
-
-// Animations
-document.querySelector('#c').addEventListener('click', () => {
-  document.querySelector('#left').classList.toggle('eye');
-});
-document.querySelector('#b').addEventListener('click', () => {
-  document.querySelector('#right').classList.toggle('eye');
-});
-document.querySelector('#d').addEventListener('click', () => {
-  document.querySelector('.dot').classList.toggle('on');
-});
-
-// Buttons - Interact with the Smart contract
-document.querySelector('#plus').addEventListener('click', async () => {
-  resetUI();
-  await contract.counterIncrement();
-  await updateUI();
-});
-
-document.querySelector('#minus').addEventListener('click', async  () => {
-  resetUI();
-  await contract.counterDecrement();
-  await updateUI();
-});
-document.querySelector('#a').addEventListener('click', async  () => {
-  resetUI();
-  await contract.counterReset();
-  await updateUI();
-});
 
 // Log in and log out users using NEAR Wallet
 document.querySelector('.sign-in .btn').onclick = () => { wallet.signIn() }
@@ -69,8 +38,27 @@ async function signedInFlow() {
   document.querySelectorAll('.interact').forEach(button => button.disabled = false)
 }
 
+// Buttons - Interact with the Smart contract
+document.querySelector('#plus').addEventListener('click', async () => {
+  resetUI();
+  await counter.increment();
+  await updateUI();
+});
+
+document.querySelector('#minus').addEventListener('click', async  () => {
+  resetUI();
+  await counter.decrement();
+  await updateUI();
+});
+document.querySelector('#a').addEventListener('click', async  () => {
+  resetUI();
+  await counter.reset();
+  await updateUI();
+});
+
+// Update and Reset UI
 async function updateUI(){
-  let count = await contract.getCounter();
+  let count = await counter.getValue();
   
   document.querySelector('#show').classList.replace('loader','number');
   document.querySelector('#show').innerText = count === undefined ? 'calculating...' : count;
@@ -88,3 +76,19 @@ async function updateUI(){
     document.querySelector('.tongue').style.display = 'none';
   }
 }
+
+function resetUI(){
+  document.querySelector('#show').classList.replace('number','loader');
+  document.querySelector('#show').innerText = '';
+}
+
+// Animations
+document.querySelector('#c').addEventListener('click', () => {
+  document.querySelector('#left').classList.toggle('eye');
+});
+document.querySelector('#b').addEventListener('click', () => {
+  document.querySelector('#right').classList.toggle('eye');
+});
+document.querySelector('#d').addEventListener('click', () => {
+  document.querySelector('.dot').classList.toggle('on');
+});

@@ -1,23 +1,25 @@
-export class Contract{
-  wallet;
+/* Talking with a contract often involves transforming data, we recommend you to encapsulate that logic into a class */
 
-  constructor({wallet}){
-    this.wallet = wallet
+export class Counter{
+
+  constructor({contractId, walletToUse}){
+    this.wallet = walletToUse
+    this.contractId = contractId
   }
 
-  async counterIncrement(){
-    return await this.wallet.callMethod({method: "increment"})
+  async increment(){
+    return await this.wallet.callMethod({contractId: this.contractId, method: "increment"})
   }
 
-  async counterDecrement(){
-    return await this.wallet.callMethod({method: "decrement"})
+  async decrement(){
+    return await this.wallet.callMethod({contractId: this.contractId, method: "decrement"})
   }
 
-  async counterReset(){
-    return await this.wallet.callMethod({method: "reset"})
+  async reset(){
+    return await this.wallet.callMethod({contractId: this.contractId, method: "reset"})
   }
 
-  async getCounter(){
-    return await this.wallet.viewMethod({method: "get_num"});
+  async getValue(){
+    return await this.wallet.viewMethod({contractId: this.contractId, method: "get_num"});
   }
 }
