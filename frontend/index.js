@@ -1,13 +1,11 @@
 import 'regenerator-runtime/runtime'
-import { Counter } from './near-interface';
 import { Wallet } from './near-wallet'
+
+const CONTRACT_ADDRESS = process.env.CONTRACT_NAME;
 
 // When creating the wallet you can choose to create an access key, so the user
 // can skip signing non-payable methods when interacting with the contract
-const wallet = new Wallet({ createAccessKeyFor: process.env.CONTRACT_NAME })
-
-// Abstract the logic of interacting with the contract to simplify your project
-const counter = new Counter({ contractId: process.env.CONTRACT_NAME, walletToUse: wallet });
+const wallet = new Wallet({ createAccessKeyFor: CONTRACT_ADDRESS })
 
 // Setup on page load
 window.onload = async () => {
@@ -41,24 +39,24 @@ async function signedInFlow() {
 // Buttons - Interact with the Smart contract
 document.querySelector('#plus').addEventListener('click', async () => {
   resetUI();
-  await counter.increment();
+  await wallet.callMethod({contractId: CONTRACT_ADDRESS, method: "increment"});
   await updateUI();
 });
 
 document.querySelector('#minus').addEventListener('click', async  () => {
   resetUI();
-  await counter.decrement();
+  await wallet.callMethod({contractId: CONTRACT_ADDRESS, method: "decrement"});
   await updateUI();
 });
 document.querySelector('#a').addEventListener('click', async  () => {
   resetUI();
-  await counter.reset();
+  await wallet.callMethod({contractId: CONTRACT_ADDRESS, method: "reset"});
   await updateUI();
 });
 
 // Update and Reset UI
 async function updateUI(){
-  let count = await counter.getValue();
+  let count = await wallet.viewMethod({contractId: CONTRACT_ADDRESS, method: "get_num"});
   
   document.querySelector('#show').classList.replace('loader','number');
   document.querySelector('#show').innerText = count === undefined ? 'calculating...' : count;
