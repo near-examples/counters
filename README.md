@@ -1,10 +1,9 @@
 # Count on NEAR 🧮 
-[![](https://img.shields.io/badge/⋈%20Examples-Basics-green)](https://docs.near.org/tutorials/welcome)
-[![](https://img.shields.io/badge/Gitpod-Ready-orange)](https://gitpod.io/#/https://github.com/near-examples/counter-rust)
+[![](https://img.shields.io/badge/⋈%20Examples-basics-green)](https://docs.near.org/tutorials/welcome)
+[![](https://img.shields.io/badge/Gitpod-ready-orange)](https://gitpod.io/#/https://github.com/near-examples/counter-rust)
 [![](https://img.shields.io/badge/Contract-rust-red)](https://docs.near.org/develop/contracts/anatomy)
-[![](https://img.shields.io/badge/Frontend-JS-yellow)](https://docs.near.org/develop/integrate/frontend)
-[![](https://img.shields.io/badge/Testing-passing-green)](https://docs.near.org/develop/integrate/frontend)
-
+[![](https://img.shields.io/badge/Frontend-js-yellow)](https://docs.near.org/develop/integrate/frontend)
+[![](https://img.shields.io/github/workflow/status/near-examples/counter-rust/Tests/master?color=green&label=Tests)](https://github.com/near-examples/counter-rust/actions/workflows/tests.yml)
 
 Count on NEAR is a decentralized app that stores a simple counter, enabling to increment, decrement and reset it.
 
