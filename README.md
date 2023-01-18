@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/Gitpod-ready-orange)](https://gitpod.io/#/https://github.com/near-examples/counter-js)
 [![](https://img.shields.io/badge/Contract-js-yellow)](https://docs.near.org/develop/contracts/anatomy)
 [![](https://img.shields.io/badge/Frontend-js-yellow)](https://docs.near.org/develop/integrate/frontend)
-[![](https://img.shields.io/github/actions/workflow/status/near-examples/counter-js/tests.yml?branch=main&color=green&label=Tests)](https://github.com/near-examples/counter-js/actions/workflows/tests.yml)
+[![](https://img.shields.io/github/actions/workflow/status/near-examples/counter-js/tests.yml?branch=master&color=green&label=Tests)](https://github.com/near-examples/counter-js/actions/workflows/tests.yml)
 
 
 Count on NEAR is a decentralized app that stores a simple counter, enabling to increment, decrement and reset it.
