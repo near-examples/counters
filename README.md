@@ -1,8 +1,9 @@
 # Counter Examples
 
-This repository contains examples for a simple counter in both Rust and JavaScript.
+This repository contains examples for a simple counter in both Rust and JavaScript, and an examples of a frontend interacting with a Counter smart contract. 
 
 ## Repositories
 
-- [counter-js-example](counter-js-example)
-- [counter-rust-example](counter-rust-example)
+- [Counter TS Examples](contract-ts)
+- [Counter RS Example](contract-rs)
+- [Counter Frontend Example](frontend)
