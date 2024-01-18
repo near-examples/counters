@@ -1,4 +1,4 @@
-./ccontract-ts/build/
+./contract-ts/build/
 ./contract-ts/node_modules/
 ./contract-ts/sandbox-ts/node_modules/
 ./contract-ts/sandbox-ts/yarn.lock
