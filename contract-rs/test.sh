@@ -7,4 +7,4 @@ cargo test
 ./build.sh
 cd sandbox-ts
 npm i
-npm run test -- -- "../target/wasm32-unknown-unknown/release/hello_near.wasm"
+npm run test -- -- "../target/wasm32-unknown-unknown/release/counter.wasm"
