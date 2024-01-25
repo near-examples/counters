@@ -5,5 +5,11 @@
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
     }
-  }
+  },
+  "portsAttributes": {
+        "3000": {
+            "label": "Application",
+            "onAutoForward": "openPreview"
+        }
+    }
 }
