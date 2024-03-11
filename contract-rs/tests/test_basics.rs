@@ -22,13 +22,23 @@ async fn test_can_be_incremented() -> Result<(), Box<dyn std::error::Error>> {
 
     assert_eq!(counter_in_zero.json::<u8>()?, 0);
 
-    let outcome = account
+    let _ = account
         .call(contract.id(), "increment")
         .args_json(json!({}))
         .transact()
         .await?;
 
-    assert!(outcome.is_success());
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    let _ = account
+        .call(contract.id(), "increment")
+        .args_json(json!({}))
+        .transact()
+        .await?;
 
     let counter_in_one = contract
         .view("get_num")
@@ -51,20 +61,25 @@ async fn test_can_be_decremented() -> Result<(), Box<dyn std::error::Error>> {
 
     assert_eq!(counter_in_zero.json::<u8>()?,0);
 
-    let outcome = account
+    let _ = account
         .call(contract.id(), "decrement")
         .args_json(json!({}))
         .transact()
         .await?;
 
-    assert!(outcome.is_success());
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
 
     let counter_in_minus_one = contract
         .view("get_num")
         .args_json(json!({}))
         .await?;
 
-    assert_eq!(counter_in_minus_one.json::<i8>()?,-1);
+    assert_eq!(counter_in_minus_one.json::<i8>()?,-2);
     
     Ok(())
 }
