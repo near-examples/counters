@@ -10,13 +10,6 @@ pub struct Counter {
     val: i8,
 }
 
-// Define the default, which automatically initializes the contract
-impl Default for Counter {
-    fn default() -> Self {
-        Self { val: 0 }
-    }
-}
-
 // Implement the contract structure
 #[near_bindgen]
 impl Counter {
@@ -47,6 +40,7 @@ impl Counter {
 
 /*
  * The rest of this file holds the inline tests for the code above
+ * to run these, the command will be: `cargo test`
  * Learn more about Rust tests: https://doc.rust-lang.org/book/ch11-01-writing-tests.html
  */
 #[cfg(test)]
