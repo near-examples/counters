@@ -1,49 +1,122 @@
-#[tokio::test]
-async fn test_contract_is_operational() -> Result<(), Box<dyn std::error::Error>> {
-    let sandbox = near_workspaces::sandbox().await?;
+use serde_json::json;
+
+async fn prepare_test_environment() -> Result<(near_workspaces::Account, near_workspaces::Contract), Box<dyn std::error::Error>> {
+    let worker = near_workspaces::sandbox().await?;
     let contract_wasm = near_workspaces::compile_project("./").await?;
+    let contract = worker.dev_deploy(&contract_wasm).await?;
+ 
+    // create accounts
+    let account = worker.dev_create_account().await?;
+    
+    Ok((account, contract))
+}
 
-    let contract = sandbox.dev_deploy(&contract_wasm).await?;
+#[tokio::test]
+async fn test_can_be_incremented() -> Result<(), Box<dyn std::error::Error>> {
+    let (account, contract) = prepare_test_environment().await?;
 
-    let user_account = sandbox.dev_create_account().await?;
+    let counter_in_zero = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
 
-    let increment = user_account
+    assert_eq!(counter_in_zero.json::<u8>()?, 0);
+
+    let _ = account
         .call(contract.id(), "increment")
-        .args_json({})
+        .args_json(json!({}))
         .transact()
         .await?;
 
-    assert!(increment.is_success());
-
-    let _increment = user_account
-        .call(contract.id(), "increment")
-        .args_json({})
-        .transact()
-        .await?;
-
-    let decrement = user_account
+    let _ = account
         .call(contract.id(), "decrement")
-        .args_json({})
+        .args_json(json!({}))
         .transact()
         .await?;
 
-    assert!(decrement.is_success());
+    let _ = account
+        .call(contract.id(), "increment")
+        .args_json(json!({}))
+        .transact()
+        .await?;
 
-    let get_num_result = contract.view("get_num").args_json({}).await?;
+    let counter_in_one = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
 
-    assert_eq!(get_num_result.json::<i8>()?, 1);
+    assert_eq!(counter_in_one.json::<u8>()?, 1);
 
-    let reset_result = user_account
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_can_be_decremented() -> Result<(), Box<dyn std::error::Error>> {
+
+    let (account, contract) = prepare_test_environment().await?;
+    let counter_in_zero = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_zero.json::<u8>()?,0);
+
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+
+    let counter_in_minus_one = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_minus_one.json::<i8>()?,-2);
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_can_be_reset() -> Result<(), Box<dyn std::error::Error>> {
+
+    let (account, contract) = prepare_test_environment().await?;
+    let counter_in_zero = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_zero.json::<u8>()?,0);
+
+    let outcome_increment = account
+        .call(contract.id(), "increment")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    assert!(outcome_increment.is_success());
+
+    let outcome_reset = account
         .call(contract.id(), "reset")
-        .args_json({})
+        .args_json(json!({}))
         .transact()
         .await?;
 
-    assert!(reset_result.is_success());
+    assert!(outcome_reset.is_success());
 
-    let get_reset_num = contract.view("get_num").args_json({}).await?;
+    let counter_reset = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
 
-    assert_eq!(get_reset_num.json::<i8>()?, 0);
+    assert_eq!(counter_reset.json::<i8>()?,0);
 
     Ok(())
 }
