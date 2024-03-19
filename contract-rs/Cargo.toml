@@ -1,6 +1,6 @@
 [package]
 name = "counter"
-description = "cargo-near-new-project-description"
+description = "counter example"
 version = "0.1.0"
 edition = "2021"
 # TODO: Fill out the repository field to help NEAR ecosystem tools to discover your project.

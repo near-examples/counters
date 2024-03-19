@@ -4,9 +4,8 @@ use near_sdk::{log, near_bindgen};
 
 // Define the contract structure
 #[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize, Default)]
 #[borsh(crate = "near_sdk::borsh")]
-
 pub struct Counter {
     val: i8,
 }
