@@ -10,8 +10,10 @@ pub struct Counter {
     val: i8,
 }
 
+// Implement the contract structure
 #[near_bindgen]
 impl Counter {
+
     // Public read-only method: Returns the counter value.
     pub fn get_num(&self) -> i8 {
         return self.val;
@@ -37,12 +39,10 @@ impl Counter {
 }
 
 /*
- * the rest of this file sets up unit tests
+ * The rest of this file holds the inline tests for the code above
  * to run these, the command will be: `cargo test`
- * Note: 'rust-counter-tutorial' comes from cargo.toml's 'name' key
+ * Learn more about Rust tests: https://doc.rust-lang.org/book/ch11-01-writing-tests.html
  */
-
-// use the attribute below for unit tests
 #[cfg(test)]
 mod tests {
     use super::*;
