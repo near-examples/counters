@@ -1,5 +1,6 @@
 import { Worker, NEAR, NearAccount } from "near-workspaces";
 import anyTest, { TestFn } from "ava";
+import { setDefaultResultOrder } from 'dns'; setDefaultResultOrder('ipv4first'); // temp fix for node >v17
 
 const test = anyTest as TestFn<{
   worker: Worker;
@@ -8,7 +9,7 @@ const test = anyTest as TestFn<{
 
 test.beforeEach(async (t) => {
   // Init the worker and start a Sandbox server
-  const worker = await Worker.init();
+  const worker = t.context.worker = await Worker.init();
   const root = worker.rootAccount;
 
   // some test accounts
@@ -23,11 +24,10 @@ test.beforeEach(async (t) => {
   await contract.deploy(process.argv[2]);
 
   // Save state for test runs, it is unique for each test
-  t.context.worker = worker;
   t.context.accounts = { contract, alice };
 });
 
-test.afterEach(async (t) => {
+test.afterEach.always(async (t) => {
   // Stop Sandbox server
   await t.context.worker.tearDown().catch((error) => {
     console.log("Failed to stop the Sandbox:", error);
