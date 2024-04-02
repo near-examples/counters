@@ -1,19 +1,16 @@
 // Find all our documentation at https://docs.near.org
-use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::{log, near_bindgen};
+use near_sdk::{log, near};
 
 // Define the contract structure
-#[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize, Default)]
-#[borsh(crate = "near_sdk::borsh")]
+#[near(contract_state)]
+#[derive(Default)]
 pub struct Counter {
     val: i8,
 }
 
 // Implement the contract structure
-#[near_bindgen]
+#[near]
 impl Counter {
-
     // Public read-only method: Returns the counter value.
     pub fn get_num(&self) -> i8 {
         return self.val;
