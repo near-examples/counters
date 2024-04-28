@@ -22,6 +22,13 @@ async fn test_can_be_incremented() -> Result<(), Box<dyn std::error::Error>> {
 
     assert_eq!(counter_in_zero.json::<u8>()?, 0);
 
+    let accumalator_in_zero = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_zero.json::<u8>()?, 0);
+
     let _ = account
         .call(contract.id(), "increment")
         .args_json(json!({}))
@@ -47,6 +54,13 @@ async fn test_can_be_incremented() -> Result<(), Box<dyn std::error::Error>> {
 
     assert_eq!(counter_in_one.json::<u8>()?, 1);
 
+    let accumalator_in_three = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_three.json::<u8>()?, 3);
+
     Ok(())
 }
 
@@ -60,6 +74,13 @@ async fn test_can_be_decremented() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     assert_eq!(counter_in_zero.json::<u8>()?,0);
+
+    let accumalator_in_zero = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_zero.json::<u8>()?, 0);
 
     let _ = account
         .call(contract.id(), "decrement")
@@ -80,6 +101,13 @@ async fn test_can_be_decremented() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     assert_eq!(counter_in_minus_one.json::<i8>()?,-2);
+
+    let accumalator_in_two = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_two.json::<u8>()?, 2);
     
     Ok(())
 }
@@ -94,6 +122,13 @@ async fn test_can_be_reset() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     assert_eq!(counter_in_zero.json::<u8>()?,0);
+
+    let accumalator_in_zero = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_zero.json::<u8>()?, 0);
 
     let outcome_increment = account
         .call(contract.id(), "increment")
@@ -117,6 +152,13 @@ async fn test_can_be_reset() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     assert_eq!(counter_reset.json::<i8>()?,0);
+
+    let accumalator_in_two = contract
+    .view("get_acc")
+    .args_json(json!({}))
+    .await?;
+
+    assert_eq!(accumalator_in_two.json::<u8>()?, 2);
 
     Ok(())
 }

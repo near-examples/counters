@@ -37,25 +37,37 @@ test.afterEach.always(async (t) => {
 test("can be incremented", async (t) => {
   const { alice, contract } = t.context.accounts;
   const startCounter: number = await contract.view("get_num", {});
+  const startAccumulator: number = await contract.view("get_acc", {});
   await alice.call(contract, "increment", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter + 1);
+
+  const endAccumulator = await contract.view("get_acc", {});
+  t.is(endAccumulator, startAccumulator + 1);
 });
 
 test("can be decremented", async (t) => {
   const { alice, contract } = t.context.accounts;
+  const startAccumulator: number = await contract.view("get_acc", {});
   await alice.call(contract, "increment", {});
   const startCounter: number = await contract.view("get_num", {});
   await alice.call(contract, "decrement", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter - 1);
+
+  const endAccumulator = await contract.view("get_acc", {});
+  t.is(endAccumulator, startAccumulator + 2);
 });
 
 test("can be reset", async (t) => {
   const { alice, contract } = t.context.accounts;
+  const startAccumulator: number = await contract.view("get_acc", {});
   await alice.call(contract, "increment", {});
   await alice.call(contract, "increment", {});
   await alice.call(contract, "reset", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, 0);
+
+  const endAccumulator = await contract.view("get_acc", {});
+  t.is(endAccumulator, startAccumulator + 3);
 });

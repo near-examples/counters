@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const { wallet, signedAccountId} = useStore();
   const [number, setNumber] = useState(0);
-  const [updateUI, setUpdateUI] = useState(false)
+  const [accumulator, setAccumulator] = useState(0);
 
   const [leftEyeVisible, setLeftEyeVisible] = useState(true);
   const [rightEyeVisible, setRightEyeVisible] = useState(true);
@@ -23,13 +23,29 @@ export default function Home() {
 
   useEffect(() => {
     if (!wallet) return;
-    const fetchNumber = async () => {
-      const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
-      setNumber(num);
-    }
+   
     fetchNumber();
-  }, [wallet, updateUI]);
+    fetchAccumulator();
+  }, [wallet]);
 
+  useEffect(() => {
+    if (!wallet) return;
+    const intervalId = setInterval(fetchAccumulator, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [wallet]); 
+
+
+  const fetchNumber = async () => {
+    const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+    setNumber(num);
+  }
+
+  const fetchAccumulator = async () => {
+    const acc = await wallet.viewMethod({ contractId: CounterContract, method: "get_acc" });
+    console.log(acc);
+    setAccumulator(acc);
+  }
  
   if (number >= 0) {
     mouth = 'smile' ;
@@ -43,7 +59,7 @@ export default function Home() {
 
   const callMethod = (method) => async () => {
     await wallet.callMethod({ contractId: CounterContract, method })
-    setUpdateUI(!updateUI);
+    fetchNumber();
   }
 
   
@@ -63,6 +79,10 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <h1 className='title'>This counter lives in the NEAR blockchain!</h1>
+      <h2>Total requests: {accumulator}</h2>
+      {!loggedIn && <div className="sign-in" >
+          <p>You'll need to sign in to interact with the counter:</p>
+      </div>}
       <div className="scene">
         <div className="gameboy">
           <div className="body-shape shadow"></div>
@@ -110,9 +130,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {!loggedIn && <div class="sign-in" >
-          <p>You'll need to sign in to interact with the counter:</p>
-      </div>}
+     
       </div>
     </main>
   );
