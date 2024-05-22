@@ -1,11 +1,12 @@
-import { Worker, NEAR, NearAccount } from "near-workspaces";
-import anyTest, { TestFn } from "ava";
+import anyTest from 'ava';
+import { Worker, NEAR } from 'near-workspaces';
 import { setDefaultResultOrder } from 'dns'; setDefaultResultOrder('ipv4first'); // temp fix for node >v17
 
-const test = anyTest as TestFn<{
-  worker: Worker;
-  accounts: Record<string, NearAccount>;
-}>;
+/**
+ *  @typedef {import('near-workspaces').NearAccount} NearAccount
+ *  @type {import('ava').TestFn<{worker: Worker, accounts: Record<string, NearAccount>}>}
+ */
+const test = anyTest;
 
 test.beforeEach(async (t) => {
   // Init the worker and start a Sandbox server
@@ -36,7 +37,7 @@ test.afterEach.always(async (t) => {
 
 test("can be incremented", async (t) => {
   const { alice, contract } = t.context.accounts;
-  const startCounter: number = await contract.view("get_num", {});
+  const startCounter = await contract.view("get_num", {});
   await alice.call(contract, "increment", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter + 1);
@@ -45,7 +46,7 @@ test("can be incremented", async (t) => {
 test("can be decremented", async (t) => {
   const { alice, contract } = t.context.accounts;
   await alice.call(contract, "increment", {});
-  const startCounter: number = await contract.view("get_num", {});
+  const startCounter = await contract.view("get_num", {});
   await alice.call(contract, "decrement", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter - 1);
