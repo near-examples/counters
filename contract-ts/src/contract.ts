@@ -37,5 +37,5 @@ class Counter {
 }
 
 const schema = {
-  struct: { val: 'i64' },
+  struct: { val: 'i32' },
 };
