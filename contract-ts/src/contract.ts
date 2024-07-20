@@ -1,6 +1,14 @@
 import { NearBindgen, near, call, view } from 'near-sdk-js'
+import * as borsh from 'borsh';
 
-@NearBindgen({})
+@NearBindgen({
+  serializer(value) {
+    return borsh.serialize(schema, value);
+  },
+  deserializer(value) {
+    return borsh.deserialize(schema, value);
+  },
+})
 class Counter {
   val: number = 0;
 
@@ -27,3 +35,7 @@ class Counter {
     near.log(`Reset counter to zero`)
   }
 }
+
+const schema = {
+  struct: { val: 'i64' },
+};
