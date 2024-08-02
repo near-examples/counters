@@ -9,6 +9,7 @@
     "deploy": "npm run build && bash ./scripts/cli_deploy.sh"
   },
   "dependencies": {
+    "borsh": "^1.0.0",
     "near-sdk-js": "2.0.0"
   },
   "devDependencies": {
