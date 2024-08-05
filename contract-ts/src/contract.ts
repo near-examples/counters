@@ -4,6 +4,10 @@ import { NearBindgen, near, call, view } from 'near-sdk-js'
 class Counter {
   val: number = 0;
 
+  static schema = {
+    number: 'number'
+  }
+
   @view({}) // Public read-only method: Returns the counter value.
   get_num(): number {
     return this.val
