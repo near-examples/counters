@@ -1,5 +1,5 @@
 const contractPerNetwork = {
-  testnet: 'countersmaguila.testnet',
+  testnet: 'counter.near-examples.testnet',
 };
 
 export const NetworkId = 'testnet';
