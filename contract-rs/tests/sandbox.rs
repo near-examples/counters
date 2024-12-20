@@ -51,7 +51,80 @@ async fn test_can_be_incremented() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[tokio::test]
+async fn test_can_be_incremented_with_points() -> Result<(), Box<dyn std::error::Error>> {
+    let (account, contract) = prepare_test_environment().await?;
+
+    let counter_in_zero = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_zero.json::<u8>()?, 0);
+
+    let _ = account
+        .call(contract.id(), "increment")
+        .args_json(json!({"number": 10}))
+        .transact()
+        .await?;
+
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    let _ = account
+        .call(contract.id(), "increment")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    let counter_in_one = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_one.json::<u8>()?, 10);
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_can_be_decremented() -> Result<(), Box<dyn std::error::Error>> {
+
+    let (account, contract) = prepare_test_environment().await?;
+    let counter_in_zero = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_zero.json::<u8>()?,0);
+
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({}))
+        .transact()
+        .await?;
+
+    let _ = account
+        .call(contract.id(), "decrement")
+        .args_json(json!({"number":10}))
+        .transact()
+        .await?;
+
+
+    let counter_in_minus_one = contract
+        .view("get_num")
+        .args_json(json!({}))
+        .await?;
+
+    assert_eq!(counter_in_minus_one.json::<i8>()?,-11);
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_can_be_decremented_with_points() -> Result<(), Box<dyn std::error::Error>> {
 
     let (account, contract) = prepare_test_environment().await?;
     let counter_in_zero = contract

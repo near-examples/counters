@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 
 import styles from '@/styles/app.module.css';
 import { NearContext } from '@/context';
@@ -7,23 +7,53 @@ import { CounterContract } from '@/config';
 export default function Home() {
   const { wallet, signedAccountId } = useContext(NearContext);
   const [number, setNumber] = useState(0);
+  const [numberIncrement, setNumberIncrement] = useState(0);
 
   const [leftEyeVisible, setLeftEyeVisible] = useState(true);
   const [rightEyeVisible, setRightEyeVisible] = useState(true);
   const [dotOn, setDotOn] = useState(false);
 
   useEffect(() => {
-    const fetchNumber = async () => {
+    const getData = setTimeout(() => {
+      if(numberIncrement == 0) return; 
+      wallet.callMethod({ contractId: CounterContract, method:'increment',args: { number: numberIncrement }}).then(async () => {
+        await fetchNumber();
+      })
+      setNumberIncrement(0)
+    }, 2000)
+
+    return () => clearTimeout(getData)
+  }, [numberIncrement])
+
+  const fetchNumber = async () => {
       const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
       setNumber(num);
-    }
+  }
 
-    const intervalId = setInterval(fetchNumber, 1000);
-    return () => clearInterval(intervalId);
+  useEffect(() => {
+    fetchNumber();
   }, []);
 
   const call = (method) => async () => {
-    await wallet.callMethod({ contractId: CounterContract, method })
+    const methodToState = {
+      increment: () => {
+        setNumberIncrement(numberIncrement + 1)
+        setNumber(number + 1)
+      },
+      decrement: () => {
+        setNumberIncrement(numberIncrement - 1)
+        setNumber(number - 1)
+      },
+      reset: async() => {
+        setNumberIncrement(0)
+        setNumber(0)
+        wallet.callMethod({ contractId: CounterContract, method:'reset' }).then(async () => {
+          await fetchNumber();
+        })
+      },
+    }
+
+    methodToState[method]?.();
   }
 
   return (
@@ -84,3 +114,51 @@ export default function Home() {
     </main>
   );
 }
+
+
+// const fetchNumber = async (isFirstLoad = false) => {
+//   if(isFirstLoad) {
+//     const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+//     setNumber(num);
+//   }else{
+//     const fetchId = ++currentFetchId;
+
+//     await new Promise(resolve => setTimeout(resolve, 500));
+//     if (fetchId === currentFetchId) {
+//       const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+//       setNumber(num);
+//     }
+
+//   }
+// }
+
+
+// const fetchNumber = async (isFirstLoad = false ) => {
+//     const fetchId = ++currentFetchId;
+
+//     const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+    
+//     if (fetchId === currentFetchId) {
+//       setNumber(num);
+//     }
+//   }
+
+
+// useEffect(() => {
+//   fetchNumber(true);
+// }, []);
+
+// const call = (method) => async () => {
+
+//   wallet.callMethod({ contractId: CounterContract, method }).then(async () => {
+//     await fetchNumber();
+//   })
+
+//   const methodToState = {
+//     increment: () => setNumber(number + 1),
+//     decrement: () => setNumber(number - 1),
+//     reset: () => setNumber(0),
+//   }
+
+//   methodToState[method]?.();
+// }

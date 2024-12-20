@@ -43,6 +43,22 @@ test("can be incremented", async (t) => {
   t.is(endCounter, startCounter + 1);
 });
 
+test("can be incremented 10 points", async (t) => {
+  const { alice, contract } = t.context.accounts;
+  const startCounter = await contract.view("get_num", {});
+  await alice.call(contract, "increment", { number: 10 });
+  const endCounter = await contract.view("get_num", {});
+  t.is(endCounter, startCounter + 10);
+});
+
+test("can be incremented -10 points", async (t) => {
+  const { alice, contract } = t.context.accounts;
+  const startCounter = await contract.view("get_num", {});
+  await alice.call(contract, "increment", { number: -10 });
+  const endCounter = await contract.view("get_num", {});
+  t.is(endCounter, startCounter - 10);
+});
+
 test("can be decremented", async (t) => {
   const { alice, contract } = t.context.accounts;
   await alice.call(contract, "increment", {});
@@ -50,6 +66,24 @@ test("can be decremented", async (t) => {
   await alice.call(contract, "decrement", {});
   const endCounter = await contract.view("get_num", {});
   t.is(endCounter, startCounter - 1);
+});
+
+test("can be decremented 10 points", async (t) => {
+  const { alice, contract } = t.context.accounts;
+  await alice.call(contract, "increment", {});
+  const startCounter = await contract.view("get_num", {});
+  await alice.call(contract, "decrement", { number: 10 });
+  const endCounter = await contract.view("get_num", {});
+  t.is(endCounter, startCounter - 10);
+});
+
+test("can be decremented -10 points", async (t) => {
+  const { alice, contract } = t.context.accounts;
+  await alice.call(contract, "increment", {});
+  const startCounter = await contract.view("get_num", {});
+  await alice.call(contract, "decrement", { number: -10 });
+  const endCounter = await contract.view("get_num", {});
+  t.is(endCounter, startCounter + 10);
 });
 
 test("can be reset", async (t) => {

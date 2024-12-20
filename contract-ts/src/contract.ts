@@ -14,14 +14,14 @@ class Counter {
   }
 
   @call({}) // Public method: Increment the counter.
-  increment() {
-    this.val += 1;
+  increment({ number = 1 }: { number: number }) {
+    this.val += number;
     near.log(`Increased number to ${this.val}`)
   }
 
   @call({}) // Public method: Decrement the counter.
-  decrement() {
-    this.val -= 1;
+  decrement({ number = 1 }: { number: number }) {
+    this.val -= number;
     near.log(`Decreased number to ${this.val}`)
   }
 
