@@ -18,6 +18,8 @@
   },
   "ava": {
     "timeout": "20000",
-    "files": ["sandbox-test/*.ava.js"]
+    "files": [
+      "sandbox-test/*.ava.js"
+    ]
   }
 }

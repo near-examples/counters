@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useRef } from 'react';
+import { useEffect, useState, useContext } from 'react';
 
 import styles from '@/styles/app.module.css';
 import { NearContext } from '@/context';
@@ -11,28 +11,51 @@ export default function Home() {
 
   const [leftEyeVisible, setLeftEyeVisible] = useState(true);
   const [rightEyeVisible, setRightEyeVisible] = useState(true);
-  const [dotOn, setDotOn] = useState(false);
+  const [tongueVisible, setTongueVisible] = useState(false);
+  const [dotOn, setDotOn] = useState(true);
+
+  const [globalInterval, setGlobalInterval] = useState(null);
+
+  useEffect(() => { 
+    fetchNumber();
+
+    // Fetch the number every two seconds
+    let interval = setInterval(fetchNumber, 1500); 
+    setGlobalInterval(interval);
+
+    return () => clearInterval(interval);
+  }, [])
 
   useEffect(() => {
-    const getData = setTimeout(() => {
-      if(numberIncrement == 0) return; 
-      wallet.callMethod({ contractId: CounterContract, method:'increment',args: { number: numberIncrement }}).then(async () => {
-        await fetchNumber();
-      })
-      setNumberIncrement(0)
-    }, 2000)
+    // interrupt the constant fetching of the number
+    clearInterval(globalInterval);
 
-    return () => clearTimeout(getData)
+    // Debounce the increment call until the user stops clicking
+    const getData = setTimeout(() => {
+      if (numberIncrement === 0) return;
+
+      setNumberIncrement(0);
+
+      // Try to increment the counter, fetch the number afterwords
+      wallet.callMethod({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
+        .finally(() => {
+          fetchNumber();
+          let interval = setInterval(fetchNumber, 1500) 
+          setGlobalInterval(interval);
+        })
+
+    }, 500)
+
+    return () => clearTimeout(getData);
   }, [numberIncrement])
 
   const fetchNumber = async () => {
-      const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
-      setNumber(num);
+    setDotOn(true);
+    console.log("fetching number")
+    const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+    setNumber(num);
+    setDotOn(false);
   }
-
-  useEffect(() => {
-    fetchNumber();
-  }, []);
 
   const call = (method) => async () => {
     const methodToState = {
@@ -44,10 +67,10 @@ export default function Home() {
         setNumberIncrement(numberIncrement - 1)
         setNumber(number - 1)
       },
-      reset: async() => {
+      reset: async () => {
         setNumberIncrement(0)
         setNumber(0)
-        wallet.callMethod({ contractId: CounterContract, method:'reset' }).then(async () => {
+        wallet.callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
           await fetchNumber();
         })
       },
@@ -68,7 +91,7 @@ export default function Home() {
           <div className="body-shape side"></div>
           <div className="body-shape front">
             <div className="screen">
-              <div className={dotOn ? 'dot on' : 'dor'}></div>
+              <div className={dotOn ? 'dot on' : 'dot off'}></div>
               <div className="face">
                 <div className="eyes-row">
                   <div id="left" className={leftEyeVisible ? 'closed eye' : 'closed'}>
@@ -80,7 +103,7 @@ export default function Home() {
                 </div>
                 <div className="mouth-row">
                   <div className={`mouth ${number >= 0 ? 'smile' : 'cry'}`}></div>
-                  <div className={`tongue ${number > 5 || number < -5 ? "show" : ""}`}></div>
+                  <div className={`tongue ${tongueVisible ? "show" : ""}`}></div>
                 </div>
               </div>
               <div id="show" className="number">{number}</div>
@@ -103,7 +126,7 @@ export default function Home() {
                   <button id="a" className="interact r a" onClick={call('reset')} disabled={!signedAccountId}>RS</button>
                   <button id="b" className="r b" onClick={() => setRightEyeVisible(!rightEyeVisible)}>RE</button>
                   <button id="c" className="r c" onClick={() => setLeftEyeVisible(!leftEyeVisible)}>LE</button>
-                  <button id="d" className="r d" onClick={() => setDotOn(!dotOn)}>L</button>
+                  <button id="d" className="r d" onClick={() => setTongueVisible(!tongueVisible)}>L</button>
                 </div>
               </div>
             </div>
