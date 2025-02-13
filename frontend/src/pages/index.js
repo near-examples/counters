@@ -1,11 +1,12 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from '@/styles/app.module.css';
-import { NearContext } from '@/context';
+import { useWalletSelector } from '@near-wallet-selector/react-hook';
 import { CounterContract } from '@/config';
 
+
 export default function Home() {
-  const { wallet, signedAccountId } = useContext(NearContext);
+	const { signedAccountId, callFunction, viewFunction } = useWalletSelector();
   const [number, setNumber] = useState(0);
   const [numberIncrement, setNumberIncrement] = useState(0);
 
@@ -37,7 +38,7 @@ export default function Home() {
       setNumberIncrement(0);
 
       // Try to increment the counter, fetch the number afterwords
-      wallet.callMethod({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
+      callFunction({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
         .finally(() => {
           fetchNumber();
           let interval = setInterval(fetchNumber, 1500) 
@@ -52,7 +53,7 @@ export default function Home() {
   const fetchNumber = async () => {
     setDotOn(true);
     console.log("fetching number")
-    const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
+    const num = await viewFunction({ contractId: CounterContract, method: "get_num" });
     setNumber(num);
     setDotOn(false);
   }
@@ -70,7 +71,7 @@ export default function Home() {
       reset: async () => {
         setNumberIncrement(0)
         setNumber(0)
-        wallet.callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
+        callFunction({ contractId: CounterContract, method: 'reset' }).then(async () => {
           await fetchNumber();
         })
       },
