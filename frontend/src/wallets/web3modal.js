@@ -11,7 +11,7 @@ const connectors = [
   walletConnect({
     projectId,
     metadata: {
-      name: "Coin-flip-examples",
+      name: "Counters",
       description: "Examples demonstrating integrations with NEAR blockchain",
       url: "https://near.github.io/wallet-selector",
       icons: ["https://near.github.io/wallet-selector/favicon.ico"],
