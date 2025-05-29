@@ -30,6 +30,7 @@
     "@near-wallet-selector/welldone-wallet": "^9.0.2",
     "@reown/appkit": "^1.7.7",
     "@reown/appkit-adapter-wagmi": "^1.7.7",
+    "@wagmi/core": "^2.17.2",
     "bootstrap": "^5",
     "bootstrap-icons": "^1.11.3",
     "next": "15.2.1",
