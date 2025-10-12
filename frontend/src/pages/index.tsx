@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import styles from '@/styles/app.module.css';
-import { useWalletSelector } from '@near-wallet-selector/react-hook';
+import { useNear } from '@/hooks/useNear';
 import { CounterContract } from '@/config';
 
 export default function Home() {
-  const { signedAccountId, callFunction, viewFunction } = useWalletSelector();
+  const { signedAccountId, callFunction, viewFunction } = useNear();
 
   const [number, setNumber] = useState<number>(0);
   const [numberIncrement, setNumberIncrement] = useState<number>(0);
@@ -15,7 +15,7 @@ export default function Home() {
   const [tongueVisible, setTongueVisible] = useState<boolean>(false);
   const [dotOn, setDotOn] = useState<boolean>(true);
 
-  const [globalInterval, setGlobalInterval] = useState<NodeJS.Timer | null>(null);
+  const [globalInterval, setGlobalInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch number initially and set interval
   useEffect(() => {

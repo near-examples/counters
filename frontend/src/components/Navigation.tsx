@@ -1,15 +1,13 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useWalletSelector } from '@near-wallet-selector/react-hook';
-
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useNear } from "@/hooks/useNear";
+import NearLogo from "../../public/near-logo.svg";
 
 export const Navigation = () => {
-  const { signedAccountId, signIn, signOut } = useWalletSelector();
-
-  // Typing the action as a function returning void
   const [action, setAction] = useState<() => void>(() => () => {});
-  const [label, setLabel] = useState<string>('Loading...');
+  const [label, setLabel] = useState<string>("Loading...");
+  const { signedAccountId, signIn, signOut } = useNear();
 
   useEffect(() => {
     if (signedAccountId) {
@@ -17,7 +15,7 @@ export const Navigation = () => {
       setLabel(`Logout ${signedAccountId}`);
     } else {
       setAction(() => signIn);
-      setLabel('Login');
+      setLabel("Login");
     }
   }, [signedAccountId, signIn, signOut]);
 
@@ -27,7 +25,7 @@ export const Navigation = () => {
         <Link href="/" passHref legacyBehavior>
           <Image
             priority
-            src="/near-logo.svg"
+            src={NearLogo}
             alt="NEAR"
             width={30}
             height={24}
