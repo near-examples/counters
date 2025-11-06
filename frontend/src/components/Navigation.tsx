@@ -1,39 +1,40 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useNear } from "@/hooks/useNear";
-import NearLogo from "../../public/near-logo.svg";
+import NearLogo from "/public/near-logo.svg";
 
 export const Navigation = () => {
-  const [action, setAction] = useState<() => void>(() => () => {});
-  const [label, setLabel] = useState<string>("Loading...");
-  const { signedAccountId, signIn, signOut } = useNear();
+  const { signedAccountId, loading, signIn, signOut } = useNear();
 
-  useEffect(() => {
+  const handleAction = () => {
     if (signedAccountId) {
-      setAction(() => signOut);
-      setLabel(`Logout ${signedAccountId}`);
+      signOut();
     } else {
-      setAction(() => signIn);
-      setLabel("Login");
+      signIn();
     }
-  }, [signedAccountId, signIn, signOut]);
+  };
+
+  const label = loading
+    ? "Loading..."
+    : signedAccountId
+    ? `Logout ${signedAccountId}`
+    : "Login";
 
   return (
     <nav className="navbar navbar-expand-lg">
       <div className="container-fluid">
-        <Link href="/" passHref legacyBehavior>
+        <Link href="/">
           <Image
             priority
             src={NearLogo}
             alt="NEAR"
-            width={30}
-            height={24}
+            width="30"
+            height="24"
             className="d-inline-block align-text-top"
           />
         </Link>
         <div className="navbar-nav pt-1">
-          <button className="btn btn-secondary" onClick={action}>
+          <button className="btn btn-secondary" onClick={handleAction}>
             {label}
           </button>
         </div>
