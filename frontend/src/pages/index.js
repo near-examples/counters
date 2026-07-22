@@ -1,54 +1,45 @@
 import { useEffect, useState } from 'react';
 
 import styles from '@/styles/app.module.css';
-import { useWalletSelector } from '@near-wallet-selector/react-hook';
+import { useNearWallet } from 'near-connect-hooks';
 import { CounterContract } from '@/config';
 
 
 export default function Home() {
-	const { signedAccountId, callFunction, viewFunction } = useWalletSelector();
+	const { signedAccountId, callFunction, viewFunction } = useNearWallet();
+  // `number` is only ever what the contract says; clicks accumulate in
+  // `pendingDelta` and are rendered on top, so polling can't clobber them.
   const [number, setNumber] = useState(0);
-  const [numberIncrement, setNumberIncrement] = useState(0);
+  const [pendingDelta, setPendingDelta] = useState(0);
 
   const [leftEyeVisible, setLeftEyeVisible] = useState(true);
   const [rightEyeVisible, setRightEyeVisible] = useState(true);
   const [tongueVisible, setTongueVisible] = useState(false);
   const [dotOn, setDotOn] = useState(true);
 
-  const [globalInterval, setGlobalInterval] = useState(null);
-
-  useEffect(() => { 
+  useEffect(() => {
     fetchNumber();
-
-    // Fetch the number every two seconds
-    let interval = setInterval(fetchNumber, 1500); 
-    setGlobalInterval(interval);
-
+    const interval = setInterval(fetchNumber, 1500);
     return () => clearInterval(interval);
   }, [])
 
   useEffect(() => {
-    // interrupt the constant fetching of the number
-    clearInterval(globalInterval);
-
-    // Debounce the increment call until the user stops clicking
+    // Debounce: send the accumulated delta once the user stops clicking
     const getData = setTimeout(() => {
-      if (numberIncrement === 0) return;
+      if (pendingDelta === 0) return;
 
-      setNumberIncrement(0);
-
-      // Try to increment the counter, fetch the number afterwords
-      callFunction({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
+      const delta = pendingDelta;
+      callFunction({ contractId: CounterContract, method: 'increment', args: { number: delta } })
         .finally(() => {
+          // On success or failure, drop what we sent and re-sync with the chain
+          setPendingDelta((d) => d - delta);
           fetchNumber();
-          let interval = setInterval(fetchNumber, 1500) 
-          setGlobalInterval(interval);
         })
 
     }, 500)
 
     return () => clearTimeout(getData);
-  }, [numberIncrement])
+  }, [pendingDelta])
 
   const fetchNumber = async () => {
     setDotOn(true);
@@ -60,25 +51,20 @@ export default function Home() {
 
   const call = (method) => async () => {
     const methodToState = {
-      increment: () => {
-        setNumberIncrement(numberIncrement + 1)
-        setNumber(number + 1)
-      },
-      decrement: () => {
-        setNumberIncrement(numberIncrement - 1)
-        setNumber(number - 1)
-      },
-      reset: async () => {
-        setNumberIncrement(0)
+      increment: () => setPendingDelta((d) => d + 1),
+      decrement: () => setPendingDelta((d) => d - 1),
+      reset: () => {
+        setPendingDelta(0)
         setNumber(0)
-        callFunction({ contractId: CounterContract, method: 'reset' }).then(async () => {
-          await fetchNumber();
-        })
+        callFunction({ contractId: CounterContract, method: 'reset' })
+          .finally(fetchNumber)
       },
     }
 
     methodToState[method]?.();
   }
+
+  const displayed = number + pendingDelta;
 
   return (
     <main className={styles.main}>
@@ -103,11 +89,11 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mouth-row">
-                  <div className={`mouth ${number >= 0 ? 'smile' : 'cry'}`}></div>
+                  <div className={`mouth ${displayed >= 0 ? 'smile' : 'cry'}`}></div>
                   <div className={`tongue ${tongueVisible ? "show" : ""}`}></div>
                 </div>
               </div>
-              <div id="show" className="number">{number}</div>
+              <div id="show" className="number" style={{ opacity: pendingDelta !== 0 ? 0.6 : 1 }}>{displayed}</div>
             </div>
             <div className="buttons">
               <div className="row">
