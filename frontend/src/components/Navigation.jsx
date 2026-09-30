@@ -22,10 +22,11 @@ export const Navigation = () => {
       : 'Login';
 
   return (
-    <nav className="navbar navbar-expand-lg">
+    <nav className="navbar bg-body border-bottom">
       <div className="container-fluid">
-        <Link href="/" passHref legacyBehavior>
-          <Image priority src={NearLogo} alt="NEAR" width="30" height="24" className="d-inline-block align-text-top" />
+        <Link href="/" className="navbar-brand d-flex align-items-center gap-2">
+          <Image priority src={NearLogo} alt="NEAR" width="30" height="24" />
+          <span className="fw-semibold">Counter</span>
         </Link>
         <div className='navbar-nav pt-1'>
           <button className="btn btn-secondary" onClick={handleAction} > {label} </button>

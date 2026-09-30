@@ -1,31 +1,31 @@
-use near_api::types::{AccountId, NearToken};
+use near_api::{AccountId, NearToken};
 use near_sdk::serde_json::json;
 
 #[tokio::test]
-async fn test_contract_is_operational() -> testresult::TestResult<()> {
+async fn test_contract_is_operational() -> Result<(), Box<dyn std::error::Error>> {
+    // let (user_account, contract, sandbox_network, signer) = prepare_test_environment().await?;
+
+    // Build the contract wasm file
+    let contract_wasm_path = cargo_near_build::build_with_cli(Default::default())?;
+    let contract_wasm = std::fs::read(contract_wasm_path)?;
+
     // Initialize the sandbox
     let sandbox = near_sandbox::Sandbox::start_sandbox().await?;
     let sandbox_network =
         near_api::NetworkConfig::from_rpc_url("sandbox", sandbox.rpc_addr.parse()?);
 
-    // Build the contract
-    let contract_wasm_path = cargo_near_build::build_with_cli(Default::default())?;
-    let contract_wasm = std::fs::read(contract_wasm_path)?;
-
-    // Create accounts
-    let user_account = create_subaccount(&sandbox, "user.sandbox").await?;
-    let contract = create_subaccount(&sandbox, "counter.sandbox")
-        .await?
+    let user_account = create_subaccount(&sandbox, "user.sandbox").await.unwrap();
+    let contract = create_subaccount(&sandbox, "contract.sandbox")
+        .await
+        .unwrap()
         .as_contract();
 
-    // Initialize signer for the contract deployment
     let signer = near_api::Signer::from_secret_key(
         near_sandbox::config::DEFAULT_GENESIS_ACCOUNT_PRIVATE_KEY
             .parse()
             .unwrap(),
     )?;
 
-    // Deploy the contract
     near_api::Contract::deploy(contract.account_id().clone())
         .use_code(contract_wasm)
         .without_init_call()
@@ -34,24 +34,17 @@ async fn test_contract_is_operational() -> testresult::TestResult<()> {
         .await?
         .assert_success();
 
-    // The counter starts at zero
-    let counter_in_zero: i8 = contract
+    // Test initial counter value
+    let counter_value: i8 = contract
         .call_function("get_num", ())
         .read_only()
         .fetch_from(&sandbox_network)
         .await?
         .data;
-    assert_eq!(counter_in_zero, 0);
 
-    // Increment, decrement, and increment again
-    contract
-        .call_function("increment", json!({}))
-        .transaction()
-        .with_signer(user_account.account_id().clone(), signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
+    assert_eq!(counter_value, 0);
 
+    // Test decrement by default value (1)
     contract
         .call_function("decrement", json!({}))
         .transaction()
@@ -60,6 +53,16 @@ async fn test_contract_is_operational() -> testresult::TestResult<()> {
         .await?
         .assert_success();
 
+    let counter_value: i8 = contract
+        .call_function("get_num", ())
+        .read_only()
+        .fetch_from(&sandbox_network)
+        .await?
+        .data;
+
+    assert_eq!(counter_value, -1);
+
+    // Test increment by default value (1)
     contract
         .call_function("increment", json!({}))
         .transaction()
@@ -68,188 +71,59 @@ async fn test_contract_is_operational() -> testresult::TestResult<()> {
         .await?
         .assert_success();
 
-    let counter_in_one: i8 = contract
+    let counter_value: i8 = contract
         .call_function("get_num", ())
         .read_only()
         .fetch_from(&sandbox_network)
         .await?
         .data;
-    assert_eq!(counter_in_one, 1);
 
-    Ok(())
-}
+    assert_eq!(counter_value, 0);
 
-#[tokio::test]
-async fn test_can_be_incremented_with_points() -> testresult::TestResult<()> {
-    // Initialize the sandbox
-    let sandbox = near_sandbox::Sandbox::start_sandbox().await?;
-    let sandbox_network =
-        near_api::NetworkConfig::from_rpc_url("sandbox", sandbox.rpc_addr.parse()?);
-
-    // Build the contract
-    let contract_wasm_path = cargo_near_build::build_with_cli(Default::default())?;
-    let contract_wasm = std::fs::read(contract_wasm_path)?;
-
-    // Create accounts
-    let user_account = create_subaccount(&sandbox, "user.sandbox").await?;
-    let contract = create_subaccount(&sandbox, "counter.sandbox")
-        .await?
-        .as_contract();
-
-    // Initialize signer for the contract deployment
-    let signer = near_api::Signer::from_secret_key(
-        near_sandbox::config::DEFAULT_GENESIS_ACCOUNT_PRIVATE_KEY
-            .parse()
-            .unwrap(),
-    )?;
-
-    // Deploy the contract
-    near_api::Contract::deploy(contract.account_id().clone())
-        .use_code(contract_wasm)
-        .without_init_call()
-        .with_signer(signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    // Increment by ten
+    // Test increment by specific value (10)
     contract
-        .call_function("increment", json!({ "number": 10 }))
+        .call_function("increment", json!({"number": 10}))
         .transaction()
         .with_signer(user_account.account_id().clone(), signer.clone())
         .send_to(&sandbox_network)
         .await?
         .assert_success();
 
-    let counter_in_ten: i8 = contract
+    // Test decrement by specific value (5)
+    contract
+        .call_function("decrement", json!({"number": 5}))
+        .transaction()
+        .with_signer(user_account.account_id().clone(), signer.clone())
+        .send_to(&sandbox_network)
+        .await?
+        .assert_success();
+
+    let counter_value: i8 = contract
         .call_function("get_num", ())
         .read_only()
         .fetch_from(&sandbox_network)
         .await?
         .data;
-    assert_eq!(counter_in_ten, 10);
 
-    Ok(())
-}
+    assert_eq!(counter_value, 5);
 
-#[tokio::test]
-async fn test_can_be_decremented() -> testresult::TestResult<()> {
-    // Initialize the sandbox
-    let sandbox = near_sandbox::Sandbox::start_sandbox().await?;
-    let sandbox_network =
-        near_api::NetworkConfig::from_rpc_url("sandbox", sandbox.rpc_addr.parse()?);
-
-    // Build the contract
-    let contract_wasm_path = cargo_near_build::build_with_cli(Default::default())?;
-    let contract_wasm = std::fs::read(contract_wasm_path)?;
-
-    // Create accounts
-    let user_account = create_subaccount(&sandbox, "user.sandbox").await?;
-    let contract = create_subaccount(&sandbox, "counter.sandbox")
-        .await?
-        .as_contract();
-
-    // Initialize signer for the contract deployment
-    let signer = near_api::Signer::from_secret_key(
-        near_sandbox::config::DEFAULT_GENESIS_ACCOUNT_PRIVATE_KEY
-            .parse()
-            .unwrap(),
-    )?;
-
-    // Deploy the contract
-    near_api::Contract::deploy(contract.account_id().clone())
-        .use_code(contract_wasm)
-        .without_init_call()
-        .with_signer(signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    // Decrement twice
+    // Test reset to zero
     contract
-        .call_function("decrement", json!({}))
+        .call_function("reset", ())
         .transaction()
         .with_signer(user_account.account_id().clone(), signer.clone())
         .send_to(&sandbox_network)
         .await?
         .assert_success();
 
-    contract
-        .call_function("decrement", json!({}))
-        .transaction()
-        .with_signer(user_account.account_id().clone(), signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    let counter_in_minus_two: i8 = contract
+    let counter_value: i8 = contract
         .call_function("get_num", ())
         .read_only()
         .fetch_from(&sandbox_network)
         .await?
         .data;
-    assert_eq!(counter_in_minus_two, -2);
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_can_be_reset() -> testresult::TestResult<()> {
-    // Initialize the sandbox
-    let sandbox = near_sandbox::Sandbox::start_sandbox().await?;
-    let sandbox_network =
-        near_api::NetworkConfig::from_rpc_url("sandbox", sandbox.rpc_addr.parse()?);
-
-    // Build the contract
-    let contract_wasm_path = cargo_near_build::build_with_cli(Default::default())?;
-    let contract_wasm = std::fs::read(contract_wasm_path)?;
-
-    // Create accounts
-    let user_account = create_subaccount(&sandbox, "user.sandbox").await?;
-    let contract = create_subaccount(&sandbox, "counter.sandbox")
-        .await?
-        .as_contract();
-
-    // Initialize signer for the contract deployment
-    let signer = near_api::Signer::from_secret_key(
-        near_sandbox::config::DEFAULT_GENESIS_ACCOUNT_PRIVATE_KEY
-            .parse()
-            .unwrap(),
-    )?;
-
-    // Deploy the contract
-    near_api::Contract::deploy(contract.account_id().clone())
-        .use_code(contract_wasm)
-        .without_init_call()
-        .with_signer(signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    // Increment and then reset
-    contract
-        .call_function("increment", json!({}))
-        .transaction()
-        .with_signer(user_account.account_id().clone(), signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    contract
-        .call_function("reset", json!({}))
-        .transaction()
-        .with_signer(user_account.account_id().clone(), signer.clone())
-        .send_to(&sandbox_network)
-        .await?
-        .assert_success();
-
-    let counter_reset: i8 = contract
-        .call_function("get_num", ())
-        .read_only()
-        .fetch_from(&sandbox_network)
-        .await?
-        .data;
-    assert_eq!(counter_reset, 0);
+    assert_eq!(counter_value, 0);
 
     Ok(())
 }

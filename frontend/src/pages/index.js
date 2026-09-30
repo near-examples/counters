@@ -4,10 +4,11 @@ import styles from '@/styles/app.module.css';
 import { useNearWallet } from '@/components/near-provider';
 import { CounterContract } from '@/config';
 
+
 export default function Home() {
   const { signedAccountId, viewMethod, callMethod } = useNearWallet();
   const [number, setNumber] = useState(0);
-  const [numberIncrement, setNumberIncrement] = useState(0);
+  const [pendingDelta, setPendingDelta] = useState(0);
 
   const [leftEyeVisible, setLeftEyeVisible] = useState(true);
   const [rightEyeVisible, setRightEyeVisible] = useState(true);
@@ -41,14 +42,15 @@ export default function Home() {
 
     // Debounce the increment call until the user stops clicking
     const getData = setTimeout(() => {
-      if (numberIncrement === 0) return;
+      if (pendingDelta === 0) return;
 
-      setNumberIncrement(0);
+      const delta = pendingDelta;
+      setPendingDelta(0);
 
       // Try to increment the counter, fetch the number afterwords
       if (!signedAccountId) return;
 
-      callMethod({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
+      callMethod({ contractId: CounterContract, method: 'increment', args: { number: delta } })
         .finally(() => {
           fetchNumberRef.current();
           let interval = setInterval(fetchNumberRef.current, 1500)
@@ -58,20 +60,14 @@ export default function Home() {
     }, 500)
 
     return () => clearTimeout(getData);
-  }, [numberIncrement, callMethod, signedAccountId])
+  }, [pendingDelta, callMethod, signedAccountId])
 
   const call = useCallback((method) => async () => {
     const methodToState = {
-      increment: () => {
-        setNumberIncrement(numberIncrement + 1)
-        setNumber(number + 1)
-      },
-      decrement: () => {
-        setNumberIncrement(numberIncrement - 1)
-        setNumber(number - 1)
-      },
-      reset: async () => {
-        setNumberIncrement(0)
+      increment: () => setPendingDelta((d) => d + 1),
+      decrement: () => setPendingDelta((d) => d - 1),
+      reset: () => {
+        setPendingDelta(0)
         setNumber(0)
         callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
           await fetchNumberRef.current();
@@ -80,7 +76,9 @@ export default function Home() {
     }
 
     methodToState[method]?.();
-  }, [callMethod, fetchNumberRef, numberIncrement, number])
+  }, [callMethod])
+
+  const displayed = number + pendingDelta;
 
   return (
     <main className={styles.main}>
@@ -105,11 +103,11 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mouth-row">
-                  <div className={`mouth ${number >= 0 ? 'smile' : 'cry'}`}></div>
+                  <div className={`mouth ${displayed >= 0 ? 'smile' : 'cry'}`}></div>
                   <div className={`tongue ${tongueVisible ? "show" : ""}`}></div>
                 </div>
               </div>
-              <div id="show" className="number">{number}</div>
+              <div id="show" className="number" style={{ opacity: pendingDelta !== 0 ? 0.6 : 1 }}>{displayed}</div>
             </div>
             <div className="buttons">
               <div className="row">
