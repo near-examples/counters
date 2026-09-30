@@ -1,11 +1,11 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 import styles from '@/styles/app.module.css';
-import { NearContext } from '@/context';
+import { useNearWallet } from '@/components/near-provider';
 import { CounterContract } from '@/config';
 
 export default function Home() {
-  const { wallet, signedAccountId } = useContext(NearContext);
+  const { signedAccountId, viewMethod, callMethod } = useNearWallet();
   const [number, setNumber] = useState(0);
   const [numberIncrement, setNumberIncrement] = useState(0);
 
@@ -14,21 +14,30 @@ export default function Home() {
   const [tongueVisible, setTongueVisible] = useState(false);
   const [dotOn, setDotOn] = useState(true);
 
-  const [globalInterval, setGlobalInterval] = useState(null);
+  const fetchNumber = useCallback(async () => {
+    setDotOn(true);
+    const num = await viewMethod({ contractId: CounterContract, method: 'get_num' });
+    setNumber(num);
+    setDotOn(false);
+  }, [viewMethod]);
 
-  useEffect(() => { 
+  const globalInterval = useRef(null);
+  const fetchNumberRef = useRef(fetchNumber);
+  fetchNumberRef.current = fetchNumber;
+
+  useEffect(() => {
     fetchNumber();
 
     // Fetch the number every two seconds
-    let interval = setInterval(fetchNumber, 1500); 
-    setGlobalInterval(interval);
+    let interval = setInterval(fetchNumber, 1500);
+    globalInterval.current = interval;
 
     return () => clearInterval(interval);
-  }, [])
+  }, [fetchNumber])
 
   useEffect(() => {
     // interrupt the constant fetching of the number
-    clearInterval(globalInterval);
+    clearInterval(globalInterval.current);
 
     // Debounce the increment call until the user stops clicking
     const getData = setTimeout(() => {
@@ -37,27 +46,21 @@ export default function Home() {
       setNumberIncrement(0);
 
       // Try to increment the counter, fetch the number afterwords
-      wallet.callMethod({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
+      if (!signedAccountId) return;
+
+      callMethod({ contractId: CounterContract, method: 'increment', args: { number: numberIncrement } })
         .finally(() => {
-          fetchNumber();
-          let interval = setInterval(fetchNumber, 1500) 
-          setGlobalInterval(interval);
+          fetchNumberRef.current();
+          let interval = setInterval(fetchNumberRef.current, 1500)
+          globalInterval.current = interval;
         })
 
     }, 500)
 
     return () => clearTimeout(getData);
-  }, [numberIncrement])
+  }, [numberIncrement, callMethod, signedAccountId])
 
-  const fetchNumber = async () => {
-    setDotOn(true);
-    console.log("fetching number")
-    const num = await wallet.viewMethod({ contractId: CounterContract, method: "get_num" });
-    setNumber(num);
-    setDotOn(false);
-  }
-
-  const call = (method) => async () => {
+  const call = useCallback((method) => async () => {
     const methodToState = {
       increment: () => {
         setNumberIncrement(numberIncrement + 1)
@@ -70,14 +73,14 @@ export default function Home() {
       reset: async () => {
         setNumberIncrement(0)
         setNumber(0)
-        wallet.callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
-          await fetchNumber();
+        callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
+          await fetchNumberRef.current();
         })
       },
     }
 
     methodToState[method]?.();
-  }
+  }, [callMethod, fetchNumberRef, numberIncrement, number])
 
   return (
     <main className={styles.main}>

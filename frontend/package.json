@@ -12,29 +12,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@near-js/providers": "^1.0.1",
-    "@near-wallet-selector/bitte-wallet": "^8.9.14",
-    "@near-wallet-selector/core": "^8.9.14",
-    "@near-wallet-selector/ethereum-wallets": "^8.9.14",
-    "@near-wallet-selector/here-wallet": "^8.9.14",
-    "@near-wallet-selector/ledger": "^8.9.14",
-    "@near-wallet-selector/meteor-wallet": "^8.9.14",
-    "@near-wallet-selector/modal-ui": "^8.9.14",
-    "@near-wallet-selector/my-near-wallet": "^8.9.14",
-    "@near-wallet-selector/near-mobile-wallet": "^8.9.14",
-    "@near-wallet-selector/sender": "^8.9.14",
-    "@near-wallet-selector/welldone-wallet": "^8.9.14",
-    "@web3modal/wagmi": "^5.1.11",
+    "@hot-labs/near-connect": "^0.11.4",
     "bootstrap": "^5",
     "bootstrap-icons": "^1.11.3",
-    "near-api-js": "^5.0.1",
+    "function-call-key-plugin": "^2.1.0",
+    "near-api-js": "^7.3.1",
     "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18",
-    "wagmi": "^2.13.3"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "encoding": "^0.1.13",
     "eslint": "^9",
     "eslint-config-next": "14.2.3"
   }
