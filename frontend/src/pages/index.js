@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 import styles from '@/styles/app.module.css';
-import { useNearWallet } from 'near-connect-hooks';
+import { useNearWallet } from '@/components/near-provider';
 import { CounterContract } from '@/config';
 
 
 export default function Home() {
-	const { signedAccountId, callFunction, viewFunction } = useNearWallet();
-  // `number` is only ever what the contract says; clicks accumulate in
-  // `pendingDelta` and are rendered on top, so polling can't clobber them.
+  const { signedAccountId, viewMethod, callMethod } = useNearWallet();
   const [number, setNumber] = useState(0);
   const [pendingDelta, setPendingDelta] = useState(0);
 
@@ -17,52 +15,68 @@ export default function Home() {
   const [tongueVisible, setTongueVisible] = useState(false);
   const [dotOn, setDotOn] = useState(true);
 
-  useEffect(() => {
-    fetchNumber();
-    const interval = setInterval(fetchNumber, 1500);
-    return () => clearInterval(interval);
-  }, [])
+  const fetchNumber = useCallback(async () => {
+    setDotOn(true);
+    const num = await viewMethod({ contractId: CounterContract, method: 'get_num' });
+    setNumber(num);
+    setDotOn(false);
+  }, [viewMethod]);
+
+  const globalInterval = useRef(null);
+  const fetchNumberRef = useRef(fetchNumber);
+  fetchNumberRef.current = fetchNumber;
 
   useEffect(() => {
-    // Debounce: send the accumulated delta once the user stops clicking
+    fetchNumber();
+
+    // Fetch the number every two seconds
+    let interval = setInterval(fetchNumber, 1500);
+    globalInterval.current = interval;
+
+    return () => clearInterval(interval);
+  }, [fetchNumber])
+
+  useEffect(() => {
+    // interrupt the constant fetching of the number
+    clearInterval(globalInterval.current);
+
+    // Debounce the increment call until the user stops clicking
     const getData = setTimeout(() => {
       if (pendingDelta === 0) return;
 
       const delta = pendingDelta;
-      callFunction({ contractId: CounterContract, method: 'increment', args: { number: delta } })
+      setPendingDelta(0);
+
+      // Try to increment the counter, fetch the number afterwords
+      if (!signedAccountId) return;
+
+      callMethod({ contractId: CounterContract, method: 'increment', args: { number: delta } })
         .finally(() => {
-          // On success or failure, drop what we sent and re-sync with the chain
-          setPendingDelta((d) => d - delta);
-          fetchNumber();
+          fetchNumberRef.current();
+          let interval = setInterval(fetchNumberRef.current, 1500)
+          globalInterval.current = interval;
         })
 
     }, 500)
 
     return () => clearTimeout(getData);
-  }, [pendingDelta])
+  }, [pendingDelta, callMethod, signedAccountId])
 
-  const fetchNumber = async () => {
-    setDotOn(true);
-    console.log("fetching number")
-    const num = await viewFunction({ contractId: CounterContract, method: "get_num" });
-    setNumber(num);
-    setDotOn(false);
-  }
-
-  const call = (method) => async () => {
+  const call = useCallback((method) => async () => {
     const methodToState = {
       increment: () => setPendingDelta((d) => d + 1),
       decrement: () => setPendingDelta((d) => d - 1),
       reset: () => {
         setPendingDelta(0)
         setNumber(0)
-        callFunction({ contractId: CounterContract, method: 'reset' })
-          .finally(fetchNumber)
+        callMethod({ contractId: CounterContract, method: 'reset' }).then(async () => {
+          await fetchNumberRef.current();
+        })
       },
     }
 
     methodToState[method]?.();
-  }
+  }, [callMethod])
 
   const displayed = number + pendingDelta;
 

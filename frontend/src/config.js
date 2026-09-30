@@ -1,4 +1,5 @@
 const contractPerNetwork = {
+  mainnet: 'counter.near-examples.near',
   testnet: 'counter.near-examples.testnet',
 };
 

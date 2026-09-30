@@ -1,33 +1,25 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useNearWallet } from 'near-connect-hooks';
 
-import NearLogo from '../../public/near-logo.svg';
-import { CounterContract } from '@/config';
+import { useNearWallet } from '@/components/near-provider';
+import NearLogo from '/public/near-logo.svg';
 
 export const Navigation = () => {
-  const { signedAccountId, signIn, signOut } = useNearWallet();
-  const [action, setAction] = useState(() => { });
-  const [label, setLabel] = useState('Loading...');
+  const { signedAccountId, loading, signIn, signOut } = useNearWallet();
 
-  useEffect(() => {
+  const handleAction = () => {
     if (signedAccountId) {
-      setAction(() => signOut);
-      setLabel(`Logout ${signedAccountId}`);
+      void signOut();
     } else {
-      // Create a function-call access key for the contract during sign-in
-      // (replaces the old wallet-selector `createAccessKeyFor` option)
-      setAction(() => () => signIn({
-        addFunctionCallKey: {
-          contractId: CounterContract,
-          allowMethods: { anyMethod: false, methodNames: ['increment', 'decrement', 'reset'] },
-          gasAllowance: { kind: 'limited', amount: '250000000000000000000000' },
-        },
-      }));
-      setLabel('Login');
+      void signIn();
     }
-  }, [signedAccountId]);
+  };
+
+  const label = loading
+    ? 'Loading...'
+    : signedAccountId
+      ? `Logout ${signedAccountId}`
+      : 'Login';
 
   return (
     <nav className="navbar bg-body border-bottom">
@@ -36,14 +28,8 @@ export const Navigation = () => {
           <Image priority src={NearLogo} alt="NEAR" width="30" height="24" />
           <span className="fw-semibold">Counter</span>
         </Link>
-        <div className='navbar-nav'>
-          <button
-            className="btn btn-outline-secondary text-truncate"
-            style={{ maxWidth: '16rem' }}
-            onClick={action}
-          >
-            {label}
-          </button>
+        <div className='navbar-nav pt-1'>
+          <button className="btn btn-secondary" onClick={handleAction} > {label} </button>
         </div>
       </div>
     </nav>
