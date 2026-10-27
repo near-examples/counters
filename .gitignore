@@ -13,3 +13,5 @@
 **/dist/
 **/.parcel-cache
 **/.next
+# Keep the frontend install reproducible in CI.
+!frontend/pnpm-lock.yaml

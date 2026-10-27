@@ -24,16 +24,21 @@ export default function Home() {
 
   const globalInterval = useRef(null);
   const fetchNumberRef = useRef(fetchNumber);
-  fetchNumberRef.current = fetchNumber;
+  useEffect(() => {
+    fetchNumberRef.current = fetchNumber;
+  }, [fetchNumber]);
 
   useEffect(() => {
-    fetchNumber();
+    const initialFetch = setTimeout(fetchNumber, 0);
 
     // Fetch the number every two seconds
     let interval = setInterval(fetchNumber, 1500);
     globalInterval.current = interval;
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [fetchNumber])
 
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function Home() {
     <main className={styles.main}>
       <h2 className='title'>This global counter lives in the NEAR blockchain!</h2>
       {!signedAccountId && <div className="sign-in" >
-        <p>You'll need to sign in to interact with the counter:</p>
+        <p>You&apos;ll need to sign in to interact with the counter:</p>
       </div>}
       <div className="scene">
         <div className="gameboy">
