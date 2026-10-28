@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useNearWallet } from '@/components/near-provider';
-import NearLogo from '/public/near-logo.svg';
+import NearLogo from '../../public/near-logo.svg';
 
 export const Navigation = () => {
   const { signedAccountId, loading, signIn, signOut } = useNearWallet();

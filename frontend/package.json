@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22.22.2"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@hot-labs/near-connect": "^0.11.4",
@@ -17,12 +17,12 @@
     "bootstrap-icons": "^1.11.3",
     "function-call-key-plugin": "^2.1.0",
     "near-api-js": "^7.3.1",
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
+    "next": "16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "eslint": "^9",
-    "eslint-config-next": "14.2.3"
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.2.10"
   }
 }
